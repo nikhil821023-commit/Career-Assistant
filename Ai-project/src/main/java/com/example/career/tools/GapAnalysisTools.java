@@ -45,8 +45,24 @@ public class GapAnalysisTools {
     public GapAnalysis analyzeGaps(String jobDescription) {
         try {
             return chatClient.prompt()
-                    .user("Compare the resume to this job description and identify " +
-                            "matched skills, missing skills, and overall fit: " + jobDescription)
+                    .user("""
+                    Compare the resume to this job description and identify
+                    matched skills, missing skills, and overall fit.
+
+                    EXAMPLE:
+                    Job description: "Looking for a Backend Engineer with Java,
+                    Spring Boot, and PostgreSQL experience."
+                    Resume mentions: Java, Spring Boot, MySQL, REST APIs.
+
+                    Expected output:
+                    matchedSkills: ["Java", "Spring Boot", "REST APIs"]
+                    missingSkills: ["PostgreSQL (has MySQL instead - related but not exact)"]
+                    fitSummary: "Strong match on core backend skills. Database
+                    experience is adjacent (MySQL vs PostgreSQL) but transferable."
+
+                    Now do the same for this job description:
+                    %s
+                    """.formatted(jobDescription))
                     .advisors(new QuestionAnswerAdvisor(vectorStore))
                     .call()
                     .entity(GapAnalysis.class);
